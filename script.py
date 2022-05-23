@@ -14,7 +14,7 @@ commits = list(repo.iter_commits(grep="^.\{11\}$"))
 commits_set = set()
 
 # OFFSET in number of hours
-OFFSET = os.getenv('OFFSET', default=0)
+OFFSET = int(os.getenv('OFFSET', default=0))
 print(f'-- OFFSET = {OFFSET}')
 
 for commit in commits:
