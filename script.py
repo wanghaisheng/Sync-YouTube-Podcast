@@ -36,6 +36,9 @@ def is_new_video(published_date):
     prev_run = offset_time - timedelta(hours=24)
     return published_date <= offset_time and published_date >= prev_run
 
+os.system('git config user.name "GitHub Actions Bot"')
+os.system('git config user.email "<>"')
+
 print('--Finding new videos')
 for entry in reversed(youtube_rss_feed.entries):
     if entry['id'] not in commits_set and is_new_video(entry['published']):
