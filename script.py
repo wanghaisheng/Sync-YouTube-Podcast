@@ -3,6 +3,7 @@ from git import Repo
 import feedparser
 import json
 from datetime import datetime, timedelta, timezone
+from dateutil.tz import tzutc
 from dateutil import parser
 
 repo = Repo(os.getenv('.'))
@@ -29,6 +30,11 @@ for entry in youtube_rss_feed.entries:
     print(entry['id'] + ': ' + entry['title'])
 
 
+def is_new_video(published_date):
+    published_date = parser.parse(published_date)
+    offset_time = datetime.now(tzutc()) - timedelta(hours=OFFSET)
+    prev_run = offset_time - timedelta(hours=24)
+    return published_date <= offset_time and published_date >= prev_run
 
 print('--Finding new videos')
 for entry in reversed(youtube_rss_feed.entries):
@@ -45,8 +51,3 @@ for entry in reversed(youtube_rss_feed.entries):
         os.system(f'git commit -m "{entry.id}" && git push')
 
 
-def is_new_video(published_date):
-    published_date = parser.parse(published_date)
-    offset_time = datetime.now(timezone.utc) - timedelta(hours=OFFSET)
-    prev_run = offset_time - timedelta(hours=24)
-    return published_date < offset_time and published_date > prev_run
