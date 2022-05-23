@@ -13,7 +13,8 @@ commits = list(repo.iter_commits(grep="^.\{11\}$"))
 commits_set = set()
 
 # OFFSET in number of hours
-OFFSET = os.getenv('OFFSET', defualt=0)
+OFFSET = os.getenv('OFFSET', default=0)
+print(f'-- OFFSET = {OFFSET}')
 
 for commit in commits:
     commits_set.add(commit.message.replace('\n', ''))
@@ -31,7 +32,7 @@ for entry in youtube_rss_feed.entries:
 
 print('--Finding new videos')
 for entry in reversed(youtube_rss_feed.entries):
-    if entry['id'] not in commits_set and is_before_offset(entry['published']):
+    if entry['id'] not in commits_set and is_new_video(entry['published']):
         print(entry['id'] + ': ' + entry['title'])
         podcast_json_obj = json.dumps({'id': entry['id'], 'title': entry['title'], 'description': entry['description'], 'published': entry['published']})
 
@@ -44,7 +45,8 @@ for entry in reversed(youtube_rss_feed.entries):
         os.system(f'git commit -m "{entry.id}" && git push')
 
 
-def is_before_offset(published_date):
+def is_new_video(published_date):
     published_date = parser.parse(published_date)
     offset_time = datetime.now(timezone.utc) - timedelta(hours=OFFSET)
-    return published_date < offset_time
+    prev_run = offset_time - timedelta(hours=24)
+    return published_date < offset_time and published_date > prev_run
