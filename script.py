@@ -44,7 +44,9 @@ for entry in reversed(youtube_rss_feed.entries):
     if entry['id'] not in commits_set and is_new_video(entry['published']):
         print(entry['id'] + ': ' + entry['title'])
         podcast_json_obj = json.dumps({'id': entry['id'], 'title': entry['title'], 'description': entry['description'], 'published': entry['published']})
-
+        
+        os.system(f'git pull --rebase')
+        
         with open("episode.json", "w") as file:
             file.write(podcast_json_obj)
 
